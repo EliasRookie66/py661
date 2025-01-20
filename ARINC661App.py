@@ -82,17 +82,46 @@ class ARINC661App(QMainWindow):
         index = item.data(0, Qt.UserRole)
         self.stacked_widget.setCurrentIndex(index)
         # TODO : focus widget
+
     
     def on_check_box_clicked(self, state):
         """ check box clicked """
         sender = self.sender()
+        clicked_name = sender.text()
 
-        print(sender.parent().parent().objectName())
+        ancestor = sender.parent().parent()
+        view = ancestor.findChild(QTableView)
+        model = view.model()
 
         if sender.isChecked():
-            print(f"{sender.text()} checked")
+            for keys, values in A661_WIDGET_EXTENSION.items():
+                if keys == clicked_name:
+                    if isinstance(values, dict):
+                        for key, value in values.items():
+                            if isinstance(value, str):
+                                model.appendRow([QStandardItem(key), QStandardItem(value)])
+                            elif isinstance(value, list):
+                                combined_string = ' '.join(str(value))
+                                model.appendRow([QStandardItem(key), QStandardItem(combined_string)])
+                    else:
+                        model.appendRow([QStandardItem(clicked_name), QStandardItem(values)])
         else:
-            print(f"{sender.text()} unchecked")
+            row = 0
+            while row < model.rowCount():
+                item = model.item(row, 0)
+                
+                if isinstance(A661_WIDGET_EXTENSION[clicked_name], dict):
+                    for keys in A661_WIDGET_EXTENSION[clicked_name].keys():
+                        if item.text() == keys:
+                            model.removeRow(row)
+                            break
+                    else:
+                        row += 1
+                else:
+                    if item.text() == clicked_name:
+                        model.removeRow(row)
+                    else:
+                        row += 1
 
     def default_check_box(self, layout, widget, type):
         """ default to create a series check boxes for every widget """
