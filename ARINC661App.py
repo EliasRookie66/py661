@@ -83,6 +83,13 @@ class ARINC661App(QMainWindow):
         self.stacked_widget.setCurrentIndex(index)
         # TODO : focus widget
 
+    def set_properties_ineditable(self, model):
+        for row in range(model.rowCount()):
+            for column in range(model.columnCount()):
+                item = model.item(row, column)
+                if column == 0:
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+
     
     def on_check_box_clicked(self, state):
         """ check box clicked """
@@ -101,7 +108,7 @@ class ARINC661App(QMainWindow):
                             if isinstance(value, str):
                                 model.appendRow([QStandardItem(key), QStandardItem(value)])
                             elif isinstance(value, list):
-                                combined_string = ' '.join(str(value))
+                                combined_string = ' '.join(str(v) for v in value)
                                 model.appendRow([QStandardItem(key), QStandardItem(combined_string)])
                     else:
                         model.appendRow([QStandardItem(clicked_name), QStandardItem(values)])
@@ -122,6 +129,7 @@ class ARINC661App(QMainWindow):
                         model.removeRow(row)
                     else:
                         row += 1
+        self.set_properties_ineditable(model)
 
     def default_check_box(self, layout, widget, type):
         """ default to create a series check boxes for every widget """
@@ -177,6 +185,9 @@ class ARINC661App(QMainWindow):
             df_model.appendRow([QStandardItem('Name'), QStandardItem(df_name)])
             df_model.appendRow([QStandardItem('Appli ID'), QStandardItem(df_id)])
 
+            self.set_properties_ineditable(df_model)
+
+
             df_view = QTableView(self)
             df_view.setModel(df_model)
 
@@ -210,6 +221,8 @@ class ARINC661App(QMainWindow):
                 layer_model.appendRow([QStandardItem('Width'), QStandardItem(layer_width)])
                 layer_model.appendRow([QStandardItem('Height'), QStandardItem(layer_height)])
 
+                self.set_properties_ineditable(layer_model)
+
                 layer_view = QTableView(self)
                 layer_view.setModel(layer_model)
                 layer_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -226,16 +239,18 @@ class ARINC661App(QMainWindow):
 
     def init_widget_table(self):
         try:
-            count = 0
             for widget, type in self.widget_dict.items():
                 # initialize table view
                 widget_view = QTableView(self)
+                widget.is_user_input = False
+                self.set_properties_ineditable(widget.model)
+                widget.is_user_input = True
                 widget_view.setModel(widget.model)
                 widget_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
                 widget_view.verticalHeader().setVisible(False)
+                
 
                 display_widget = QWidget(self)
-                display_widget.setObjectName(f"{type}_{count}")
                 widget_layout = QVBoxLayout()
 
                 # create a splitter for table view widget and check box widget
@@ -291,6 +306,8 @@ class ARINC661App(QMainWindow):
                     # step3 : initialize element's attributes and create table model
                     self.init_common_attr(widget, widget_combo_box)
                     self.init_unique_attr(widget, widget_combo_box)
+
+
 
                 elif widget_type == 'A661_PUSH_BUTTON':
                     widget_push_button = QPushButton(self.display_widget)

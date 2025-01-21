@@ -1,13 +1,16 @@
 from widget.A661CommonParams import *
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtCore import pyqtSignal
 
 class AbstractWidget:
-
+    # userInputChanged = pyqtSignal(QStandardItem, bool)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__startPos = None
+        self.is_user_input = True
         self.model = QStandardItemModel()
+        self.model.itemChanged.connect(self.on_item_changed)
         self.common_attr = {
             'Name' : None,
             'WidgetIdent' : None,
@@ -23,30 +26,20 @@ class AbstractWidget:
             'StyleSet' : 0,
             'Visible' : A661_VISIBLE.get('A661_TRUE')
         }
-    #     self.model.itemChanged.connect(self.handle_item_changed)
 
-    # def handle_item_changed(self, item):
-    #     row = item.row()
-    #     column = item.column()
-        
-    #     if column == 1:
-    #         attr_name = self.model.item(row, 0).text()
-    #         if attr_name in self.common_attr: # may change into normal (now is only for move)
-    #             try:
-    #                 new_value = int(item.text())
-    #                 self.common_attr[attr_name] = new_value
-    #                 self.move(self.common_attr["PosX"], self.common_attr["PosY"])
-    #                 print(f"Moved to: {self.common_attr}")
-    #             except ValueError:
-    #                 # 如果输入的值不是整数，恢复原值
-    #                 item.setText(str(self.common_attr[attr_name]))
-
+    def on_item_changed(self, item):
+        # self.userInputChanged.emit(item, self.is_user_input)
+        if self.is_user_input:
+            print(f"Item changed: {item.text()}")
+            # TODO
+            self.move(200,200)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.__startPos = event.pos()
 
     def mouseMoveEvent(self, event):
+        self.is_user_input = False
         if event.buttons() == Qt.LeftButton and self.__startPos:
             # calculate
             delta = event.pos() - self.__startPos
@@ -67,6 +60,7 @@ class AbstractWidget:
                         self.model.item(row, column + 1).setText(self.common_attr['PosY'])
                         continue
 
+        self.is_user_input = True
         event.accept()
 
     def mouseReleaseEvent(self, event):
