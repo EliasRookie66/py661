@@ -1,4 +1,3 @@
-from enum import Enum
 from PyQt5.QtCore import Qt
 
 A661_AUTO_FOCUS_MOTION = {

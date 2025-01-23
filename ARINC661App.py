@@ -7,11 +7,56 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from widget.BasicContainer import  ARINC661BasicContainer
-from widget.ComboBox import A661ComboBox
+from widget.ComboBox import *
 from widget.A661CommonParams import *
 from widget.Label import A661Label
-from PyQt5.QtWidgets import QFrame
-from PyQt5.QtWidgets import QFrame
+
+class ModelDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def createEditor(self, parent, option, index):
+        column = index.column()
+        # always create combobox when click item
+        # wait to handle
+        if column == 1:
+            left_text = index.siblingAtColumn(0).data()
+            if left_text == 'Alignment':
+                combo = QComboBox(parent)
+                combo.addItems(list(A661_ALIGNMENT.keys()))
+                return combo
+            elif left_text == 'OpeningMode':
+                combo = QComboBox(parent)
+                combo.addItems(list(OpeningMode.keys()))
+                return combo
+            elif left_text == 'A661_AUTO_FOCUS_MOTION':
+                combo = QComboBox(parent)
+                combo.addItems(list(A661_AUTO_FOCUS_MOTION.keys()))
+                return combo
+            elif left_text == 'A661_ENABLE':
+                combo = QComboBox(parent)
+                combo.addItems(list(A661_ENABLE.keys()))
+                return combo
+            elif left_text == 'A661_VISIBLE':
+                combo = QComboBox(parent)
+                combo.addItems(list(A661_VISIBLE.keys()))
+                return combo
+        return super().createEditor(parent, option, index)
+
+    def setEditorData(self, editor, index):
+        if isinstance(editor, QComboBox):
+            value = index.data()
+            if value:
+                editor.setCurrentText(value)
+        else:
+            super().setEditorData(editor, index)
+
+    def setModelData(self, editor, model, index):
+        if isinstance(editor, QComboBox):
+            model.setData(index, editor.currentText())
+        else:
+            super().setModelData(editor, model, index)
+
 
 class AlignmentDelegate(QStyledItemDelegate):
     def __init__(self, parent=None, alignment=Qt.AlignmentFlag.AlignLeft):
@@ -90,7 +135,6 @@ class ARINC661App(QMainWindow):
                 item = model.item(row, column)
                 if column == 0:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-
     
     def on_check_box_clicked(self, state):
         """ check box clicked """
@@ -245,8 +289,10 @@ class ARINC661App(QMainWindow):
                 widget_view = QTableView(self)
                 widget.is_user_input = False
                 self.set_properties_ineditable(widget.model)
-                widget.is_user_input = True
+                delegate = ModelDelegate(widget_view)
+                widget_view.setItemDelegate(delegate)
                 widget_view.setModel(widget.model)
+                widget.is_user_input = True
                 widget_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
                 widget_view.verticalHeader().setVisible(False)
                 
@@ -312,8 +358,6 @@ class ARINC661App(QMainWindow):
                     self.init_common_attr(widget, widget_combo_box)
                     self.init_unique_attr(widget, widget_combo_box)
 
-
-
                 elif widget_type == 'A661_PUSH_BUTTON':
                     widget_push_button = QPushButton(self.hint_label)
                     self.widget_dict[widget_push_button] = widget_type
@@ -373,7 +417,7 @@ class ARINC661App(QMainWindow):
 
         for key, value in target.common_attr.items():
             if key in XMLA661Parser.widget_properties.keys():
-                target.model.appendRow([QStandardItem(key), QStandardItem(str(value))])
+                target.model.appendRow([QStandardItem(XMLA661Parser.widget_properties[key]), QStandardItem(str(value))])
 
         # alignment delegate
         self.init_widget_alignment(target)
