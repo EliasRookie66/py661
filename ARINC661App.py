@@ -57,17 +57,6 @@ class ModelDelegate(QStyledItemDelegate):
         else:
             super().setModelData(editor, model, index)
 
-
-class AlignmentDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None, alignment=Qt.AlignmentFlag.AlignLeft):
-        super().__init__(parent)
-        self.displayAlignment = alignment
-
-    def initStyleOption(self, option, index):
-        super().initStyleOption(option, index)
-        option.displayAlignment = self.displayAlignment
-
-
 class ARINC661App(QMainWindow):
 
     add_widget_signal = pyqtSignal(str, dict)
@@ -84,6 +73,8 @@ class ARINC661App(QMainWindow):
 
         # menu
         menubar = self.menuBar()
+
+        # File
         file_menu = menubar.addMenu("File")
         file_menu.addAction("New DF")
         open_df_action = file_menu.addAction("Open DF")
@@ -91,16 +82,84 @@ class ARINC661App(QMainWindow):
         file_menu.addMenu("Open recent DFs")
         file_menu.addSeparator()
         file_menu.addAction("Save")
-        file_menu.addMenu("Save as")
+        save_as_menu = file_menu.addMenu("Save as")
+        save_as_menu.addAction('As XML')
+        save_as_menu.addAction('As Binary')
         file_menu.addAction("Convert")
         file_menu.addSeparator()
-        file_menu.addMenu("Import")
-        file_menu.addMenu("Export")
+        import_menu = file_menu.addMenu("Import")
+        import_menu.setEnabled(False)
+        export_menu = file_menu.addMenu("Export")
+        export_menu.setEnabled(False)
         file_menu.addAction("Save Snapshot")
         file_menu.addSeparator()
         file_menu.addAction("Exit")
 
-        # tool
+        # Editor
+        editor_menu = menubar.addMenu('Editor')
+        editor_menu.addAction('Search')
+        editor_menu.addAction('Set Background')
+        editor_menu.addAction('Background Parameters')
+        editor_menu.addSeparator()
+        editor_menu.addAction('Snap To Grid')
+
+        # Runtime
+        runtime_menu = menubar.addMenu('Runtime')
+        runtime_menu.addAction('Create Server')
+        runtime_menu.addSeparator()
+        runtime_menu.addAction('Open Client')
+        runtime_menu.addSeparator()
+        runtime_menu.addAction('Set Look And Feel')
+        runtime_menu.addAction('Reload Look And Feel')
+
+        # Options
+        option_menu = menubar.addMenu('Options')
+        option_menu.addAction('Settings')
+        option_menu.addSeparator()
+        option_menu.addAction('Load Configuration')
+        option_menu.addAction('Save Configuration')
+        option_menu.addAction('Reload Configuration')
+
+        # Tools
+        tools_menu = menubar.addMenu('Tools')
+        tools_menu.addAction('Extract UI Defaults')
+        cockpit_plugin = tools_menu.addMenu('Cockpit Plugin')
+        cockpit_plugin.addAction('Convert Cockpit Configuration File')
+        debugging = tools_menu.addMenu('Debugging')
+        debugging.addAction('Decode Message')
+        debugging.addAction('Decode Scenario')
+        debugging.addSeparator()
+        debugging.addAction('Debug Server')
+        editor_scriping = tools_menu.addMenu('Editor Scripting')
+        editor_scriping.addAction('Apply Script On Current DF')
+        editor_scriping.addAction('Apply Script On All DFs')
+        look_n_feel = tools_menu.addMenu('Look Model')
+        look_n_feel.addAction('Open Look Capacities')
+        look_n_feel.addAction('Open Look Definition')
+        look_n_feel.addAction('Convert Look Model')
+        synth2_menu = look_n_feel.addMenu('Synth2')
+        synth2_menu.addAction('Convert From Synth2 to Look Model')
+        synth2_menu.addAction('Convert From Look Model to Synth2')
+        style_set_extraction_menu = look_n_feel.addMenu('Style Set Extraction')
+        style_set_extraction_menu.addAction('Extract Style Sets from Look and Feel file')
+
+        uacds_plugin = tools_menu.addMenu('UACDS Plugin')
+        uacds_plugin.addAction('Create UACDS Interface')
+        uacds_plugin.addAction('Save UACDS Interface File')
+        wd_plugin = tools_menu.addMenu('WidgetDefinition Plugin')
+        wd_plugin.addAction('View Widget Definition')
+        wd_plugin.addAction('Extract Supplement')
+        wd_plugin.addAction('Produce Full Metadefinition')
+        wd_plugin.addAction('Generate Documentation')
+        wd_plugin.addSeparator()
+        wd_plugin.addAction('Apply Meta-definition Script')
+
+        help_menu = menubar.addMenu('Help')
+        help_menu.addAction('Wiki')
+        help_menu.addAction('About')
+        help_menu.addAction('About Plugins')
+
+        # tool bar
 
         # main widget
         central_widget = QWidget(self)
@@ -365,40 +424,6 @@ class ARINC661App(QMainWindow):
 
         except Exception as e:
             print(f"Error rendering display widget: {e}")
-    
-
-
-    def init_widget_alignment(self, target):
-        target.setEditable(True)
-        line_edit = target.lineEdit()
-        line_edit.setReadOnly(True)
-        alignment_name = target.common_attr['Alignment']
-
-        alignment = A661_ALIGNMENT.get(alignment_name)
-        if alignment is None:
-            raise ValueError("Invalid alignment name: {}".format(alignment_name))
-        
-        if alignment is not None:
-            line_edit.setAlignment(alignment)
-
-        current_delegate = target.itemDelegate()
-
-        # none then create
-        if current_delegate is None:
-            alignment_delegate = AlignmentDelegate(target, alignment)
-            target.setItemDelegate(alignment_delegate)
-        elif isinstance(current_delegate, AlignmentDelegate):
-            # already have then delete old and create new
-            if current_delegate.alignment != alignment:
-                target.setItemDelegate(None)
-                alignment_delegate = AlignmentDelegate(target, alignment)
-                target.setItemDelegate(alignment_delegate)
-            # different type then delete old and create new
-            else:
-                target.setItemDelegate(None)
-                alignment_delegate = AlignmentDelegate(target, alignment)
-                target.setItemDelegate(alignment_delegate)
-
 
 
     def init_common_attr(self, source, target):
@@ -420,7 +445,7 @@ class ARINC661App(QMainWindow):
                 target.model.appendRow([QStandardItem(XMLA661Parser.widget_properties[key]), QStandardItem(str(value))])
 
         # alignment delegate
-        self.init_widget_alignment(target)
+        target.init_widget_alignment()
 
         # modify the position
         transform_into_py661_position_rate = 0.05 # 380 / 10000 * 25 / 19 = 0.05
@@ -450,8 +475,6 @@ class ARINC661App(QMainWindow):
             target.model.appendRow([QStandardItem('A661_STRING_ARRAY'), QStandardItem(widget_string_combined)])
             target.addItems(entry_list)
         # print(f'key:{target}, value:{self.widget_dict[target]}')
-
-
 
     def add_tab(self, file_name):
         # container

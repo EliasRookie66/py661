@@ -1,6 +1,16 @@
 from widget.A661CommonParams import *
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtWidgets import QStyledItemDelegate
+
+class AlignmentDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None, alignment=Qt.AlignmentFlag.AlignLeft):
+        super().__init__(parent)
+        self.displayAlignment = alignment
+
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        option.displayAlignment = self.displayAlignment
 
 class AbstractWidget:
     def __init__(self, *args, **kwargs):
@@ -25,9 +35,36 @@ class AbstractWidget:
             'Visible' : A661_VISIBLE.get('A661_TRUE')
         }
 
+    def init_widget_alignment(self):
+        alignment_name = self.common_attr['Alignment']
+        alignment = A661_ALIGNMENT.get(alignment_name)
+        if alignment is None:
+            raise ValueError("Invalid alignment name: {}".format(alignment_name))
+        
+        if alignment is not None:
+            self.setAlignment(alignment)
+
+        current_delegate = self.itemDelegate()
+
+        # none then create
+        if current_delegate is None:
+            alignment_delegate = AlignmentDelegate(self, alignment)
+            self.setItemDelegate(alignment_delegate)
+        elif isinstance(current_delegate, AlignmentDelegate):
+            # already have then delete old and create new
+            if current_delegate.alignment != alignment:
+                self.setItemDelegate(None)
+                alignment_delegate = AlignmentDelegate(self, alignment)
+                self.setItemDelegate(alignment_delegate)
+            # different type then delete old and create new
+            else:
+                self.setItemDelegate(None)
+                alignment_delegate = AlignmentDelegate(self, alignment)
+                self.setItemDelegate(alignment_delegate)
+
     def on_item_changed(self, item):
         if self.is_user_input:
-            print(f"Item changed: {item.text()}")
+            # print(f"Item changed: {item.text()}")
             # get the index to confirm the item changed
             index = item.index()
             row = index.row()
@@ -35,7 +72,9 @@ class AbstractWidget:
             previous_index = self.model.index(row, column - 1)
             previous_item = self.model.itemFromIndex(previous_index)
 
-            if previous_item.text() == 'PosX':
+            if previous_item == None:
+                return
+            elif previous_item.text() == 'PosX':
                 self.common_attr['PosX'] = item.text()
                 x = int(item.text())
                 y = int(self.common_attr['PosY'])
@@ -47,6 +86,16 @@ class AbstractWidget:
                 y = int(item.text())
                 # print(f'x:{x} \t y:{y}')
                 self.move(x, 400 - y)
+            elif previous_item.text() == 'Alignment':
+                self.common_attr['Alignment'] = item.text()
+                self.setAlignment(A661_ALIGNMENT.get(item.text()))
+            elif previous_item.text() == 'A661_ENABLE':
+                self.common_attr['Enable'] = A661_ENABLE.get(item.text())
+                self.setEnabled(A661_ENABLE.get(item.text()))
+            elif previous_item.text() == 'A661_VISIBLE':
+                self.common_attr['Visible'] = A661_VISIBLE.get(item.text())
+                self.setVisible(A661_VISIBLE.get(item.text()))
+        
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
