@@ -4,20 +4,17 @@ from PyQt5.QtWidgets import QTabWidget, QMenu
 class A661TabWidget(QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        # 安装事件过滤器到 TabBar
         self.tabBar().installEventFilter(self)
 
     def eventFilter(self, source, event):
         if source == self.tabBar() and event.type() == event.MouseButtonPress:
             if event.button() == Qt.RightButton:
-                # 获取鼠标位置并确定点击的 tab 索引
                 tab_index = self.tabBar().tabAt(event.pos())
                 if tab_index != -1:
                     self.showContextMenu(event.pos(), tab_index)
         return super().eventFilter(source, event)
 
     def showContextMenu(self, pos, tab_index):
-        """显示右键菜单"""
         menu = QMenu(self)
         open_in_server_action = menu.addAction("Open In Server")
         menu.addSeparator()
@@ -30,7 +27,6 @@ class A661TabWidget(QTabWidget):
         close_other_action = menu.addAction("Close Other")
         close_other_action.setEnabled(False)
 
-        # 显示菜单并捕获用户选择的动作
         action = menu.exec_(self.mapToGlobal(pos))
         if action == open_in_server_action:
             print('open_in_server_action is triggered')
