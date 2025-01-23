@@ -1,10 +1,8 @@
 from widget.A661CommonParams import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import pyqtSignal
 
 class AbstractWidget:
-    # userInputChanged = pyqtSignal(QStandardItem, bool)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__startPos = None
@@ -28,11 +26,27 @@ class AbstractWidget:
         }
 
     def on_item_changed(self, item):
-        # self.userInputChanged.emit(item, self.is_user_input)
         if self.is_user_input:
             print(f"Item changed: {item.text()}")
-            # TODO
-            self.move(200,200)
+            # get the index to confirm the item changed
+            index = item.index()
+            row = index.row()
+            column = index.column()
+            previous_index = self.model.index(row, column - 1)
+            previous_item = self.model.itemFromIndex(previous_index)
+
+            if previous_item.text() == 'PosX':
+                self.common_attr['PosX'] = item.text()
+                x = int(item.text())
+                y = int(self.common_attr['PosY'])
+                # print(f'x:{x} \t y:{y}')
+                self.move(x, 400 - y) # 500 - widget_height
+            elif previous_item.text() == 'PosY':
+                self.common_attr['PosY'] = item.text()
+                x = int(self.common_attr['PosX'])
+                y = int(item.text())
+                # print(f'x:{x} \t y:{y}')
+                self.move(x, 400 - y)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -47,7 +61,7 @@ class AbstractWidget:
             # update
             self.move(new_pos)
             self.common_attr['PosX'] = str(self.pos().x() + delta.x())
-            self.common_attr['PosY'] = str(-(self.pos().y() + delta.y()) + 585)
+            self.common_attr['PosY'] = str(-(self.pos().y() + delta.y()) + 425)
             # print(f"x:{self.common_attr['PosX']}, y:{self.common_attr['PosY']}")
 
             for row in range(self.model.rowCount()):

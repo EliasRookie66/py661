@@ -9,8 +9,9 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from widget.BasicContainer import  ARINC661BasicContainer
 from widget.ComboBox import A661ComboBox
 from widget.A661CommonParams import *
-from PyQt5.QtWidgets import QCheckBox
-
+from widget.Label import A661Label
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtWidgets import QFrame
 
 class AlignmentDelegate(QStyledItemDelegate):
     def __init__(self, parent=None, alignment=Qt.AlignmentFlag.AlignLeft):
@@ -290,6 +291,10 @@ class ARINC661App(QMainWindow):
     def init_display_widget(self):
         try:
             # initialize display widget 
+            self.hint_label = A661Label(self.display_widget)
+            self.hint_label.setFrameStyle(QFrame.Box)
+            self.hint_label.setGeometry(0, 0, 500, 500)
+            
             self.display_widget.setGeometry(0, 0, 500, 500)
             self.widget_dict = dict()
 
@@ -301,7 +306,7 @@ class ARINC661App(QMainWindow):
 
                 # Step2 : create the element
                 if widget_type == 'A661_COMBO_BOX':
-                    widget_combo_box = A661ComboBox(self.display_widget)  # QComboBox A661ComboBox
+                    widget_combo_box = A661ComboBox(self.hint_label)
                     self.widget_dict[widget_combo_box] = widget_type
                     # step3 : initialize element's attributes and create table model
                     self.init_common_attr(widget, widget_combo_box)
@@ -310,7 +315,7 @@ class ARINC661App(QMainWindow):
 
 
                 elif widget_type == 'A661_PUSH_BUTTON':
-                    widget_push_button = QPushButton(self.display_widget)
+                    widget_push_button = QPushButton(self.hint_label)
                     self.widget_dict[widget_push_button] = widget_type
                     widget_push_button.setText(widget['model_prop']['prop'].get('LabelString', ''))
 
@@ -374,17 +379,18 @@ class ARINC661App(QMainWindow):
         self.init_widget_alignment(target)
 
         # modify the position
-        widget_height = self.display_widget.height()
-        widget_width = self.display_widget.width()
-        widget_pos_x = round(int(source['model_prop']['prop'].get('PosX', 0)) / 10)
-        widget_pos_y = round(int(source['model_prop']['prop'].get('PosY', 0)) / 20)
-        target.common_attr['SizeX'] = round(int(source['model_prop']['prop'].get('SizeX', 0)) / 20)
-        target.common_attr['SizeY'] = round(int(source['model_prop']['prop'].get('SizeY', 0)) / 20)
-        target.common_attr['PosX'] = widget_width - widget_pos_x - target.common_attr['SizeX']
-        target.common_attr['PosY'] = widget_height - widget_pos_y - target.common_attr['SizeY']
-        target.setGeometry(target.common_attr['PosX'], target.common_attr['PosY'], target.common_attr['SizeX'],
-                        target.common_attr['SizeY'])
+        transform_into_py661_position_rate = 0.05 # 380 / 10000 * 25 / 19 = 0.05
 
+        # widget_height = self.hint_label.height()
+        # widget_width = self.hint_label.width()
+
+        target.common_attr['SizeX'] = round(int(source['model_prop']['prop'].get('SizeX', 0)) * transform_into_py661_position_rate)
+        target.common_attr['SizeY'] = round(int(source['model_prop']['prop'].get('SizeY', 0)) * transform_into_py661_position_rate)
+        target.common_attr['PosX'] = round(int(source['model_prop']['prop'].get('PosX', 0)) * transform_into_py661_position_rate)
+        target.common_attr['PosY'] = round(int(source['model_prop']['prop'].get('PosY', 0)) * transform_into_py661_position_rate)
+        # print(f"widget_pos_x:{target.common_attr['PosX']} \t widget_position_y:{target.common_attr['PosY']}")
+
+        target.setGeometry(target.common_attr['PosX'], 400 - target.common_attr['PosY'], target.common_attr['SizeX'], target.common_attr['SizeY'])
 
     def init_unique_attr(self, source, target):
         if self.widget_dict[target] == 'A661_COMBO_BOX':
@@ -408,7 +414,7 @@ class ARINC661App(QMainWindow):
         container_widget = QWidget(self)
         layout = QHBoxLayout()
 
-        self.display_widget = ARINC661BasicContainer(self)            # display widget
+        self.display_widget = ARINC661BasicContainer(self)
         self.init_display_widget()
 
         h_splitter = QSplitter(Qt.Horizontal)
