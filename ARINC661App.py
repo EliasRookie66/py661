@@ -10,6 +10,7 @@ from widget.BasicContainer import  ARINC661BasicContainer
 from widget.ComboBox import *
 from widget.A661CommonParams import *
 from widget.Label import A661Label
+from widget.TabWidget import *
 
 class ModelDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -165,7 +166,7 @@ class ARINC661App(QMainWindow):
         central_widget = QWidget(self)
 
         v_splitter = QSplitter(Qt.Vertical)
-        self.tab_widget = QTabWidget(self)
+        self.tab_widget = A661TabWidget(self)
         bottom_widget = QWidget(self)
         bottom_text_edit = QTextEdit()
         bottom_text_edit.setReadOnly(True)
