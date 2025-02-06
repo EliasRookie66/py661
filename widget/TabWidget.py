@@ -1,10 +1,14 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QTabWidget, QMenu
+from server.Server import *
+from widget.Label import A661Label
 
 class A661TabWidget(QTabWidget):
+    enable_client_state_signal = pyqtSignal(bool)
     def __init__(self, parent=None):
         super().__init__(parent)
         self.tabBar().installEventFilter(self)
+        
 
     def eventFilter(self, source, event):
         if source == self.tabBar() and event.type() == event.MouseButtonPress:
@@ -30,6 +34,10 @@ class A661TabWidget(QTabWidget):
         action = menu.exec_(self.mapToGlobal(pos))
         if action == open_in_server_action:
             print('open_in_server_action is triggered')
+            self.client = ServerWindow('server',  self.findChild(A661Label), udp_port=5000, target_port=5001)
+            self.client.show()
+            self.enable_client_state_signal.emit(True)
+            self.client.disable_client_state_signal.connect(lambda: self.enable_client_state_signal.emit(False))
         elif action == create_UACDS_interface_action:
             print('create_UACDS_interface_action is triggered')
         elif action == open_UACDS_interface_action:

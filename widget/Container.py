@@ -16,7 +16,7 @@ class AbstractContainer:
         event.accept()
 
 
-class ARINC661BasicContainer(AbstractContainer, QWidget):
+class AppContainer(AbstractContainer, QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)

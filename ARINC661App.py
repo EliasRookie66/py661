@@ -2,15 +2,16 @@ import os
 import sys
 from parse import XMLA661Parser as XMLA661Parser
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QFile
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 
-from widget.BasicContainer import  ARINC661BasicContainer
+from widget.Container import  AppContainer
 from widget.ComboBox import *
 from widget.A661CommonParams import *
 from widget.Label import A661Label
 from widget.TabWidget import *
+from widget.PushButton import *
 
 class ModelDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -67,6 +68,10 @@ class ARINC661App(QMainWindow):
 
         self.add_widget_signal.connect(self.add_tab)
         self.setup_ui()
+        file = QFile(r'C:\Users\shconnet\Downloads\Integrid\Integrid.qss')
+        file.open(QFile.ReadOnly)
+        style_sheet = file.readAll()
+        self.setStyleSheet(str(style_sheet, encoding='utf-8'))
 
     def setup_ui(self):
         self.setWindowTitle("ARINC 661 Editor")
@@ -108,7 +113,9 @@ class ARINC661App(QMainWindow):
         runtime_menu = menubar.addMenu('Runtime')
         runtime_menu.addAction('Create Server')
         runtime_menu.addSeparator()
-        runtime_menu.addAction('Open Client')
+        self.open_client_action = runtime_menu.addAction('Open Client')
+        self.open_client_action.setEnabled(False)
+        self.open_client_action.triggered.connect(self.on_triggered_open_client)
         runtime_menu.addSeparator()
         runtime_menu.addAction('Set Look And Feel')
         runtime_menu.addAction('Reload Look And Feel')
@@ -161,12 +168,22 @@ class ARINC661App(QMainWindow):
         help_menu.addAction('About Plugins')
 
         # tool bar
+        file_bar = self.addToolBar('File Bar')
+        file_bar.setAllowedAreas(Qt.TopToolBarArea)
+        file_bar.setMovable(True)
+        new_file_action = file_bar.addAction(QIcon(r'C:\icons\new_file'), 'New Definition File')
+
+        open_folder_action = file_bar.addAction(QIcon(r'C:\icons\open_folder'), 'Open Folder')
+        open_folder_action.triggered.connect(self.on_triggered_open_df)
+
+        save_file_action = file_bar.addAction(QIcon(r'C:\icons\save_file'), 'Save')
 
         # main widget
         central_widget = QWidget(self)
 
         v_splitter = QSplitter(Qt.Vertical)
         self.tab_widget = A661TabWidget(self)
+        self.tab_widget.enable_client_state_signal.connect(self.on_update_client_state)
         bottom_widget = QWidget(self)
         bottom_text_edit = QTextEdit()
         bottom_text_edit.setReadOnly(True)
@@ -182,6 +199,14 @@ class ARINC661App(QMainWindow):
         central_layout.addWidget(v_splitter)
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
+
+    def on_update_client_state(self, state):
+        self.open_client_action.setEnabled(state)
+
+    def on_triggered_open_client(self):
+        """ open client """
+        print("open client")
+
     
     def on_tree_widget_item_clicked(self, item, column):
         # table
@@ -419,9 +444,11 @@ class ARINC661App(QMainWindow):
                     self.init_unique_attr(widget, widget_combo_box)
 
                 elif widget_type == 'A661_PUSH_BUTTON':
-                    widget_push_button = QPushButton(self.hint_label)
+                    widget_push_button = A661PushButton(self.hint_label) # QPushButton
                     self.widget_dict[widget_push_button] = widget_type
-                    widget_push_button.setText(widget['model_prop']['prop'].get('LabelString', ''))
+                    self.init_common_attr(widget, widget_push_button)
+                    self.init_unique_attr(widget, widget_push_button)
+                    
 
         except Exception as e:
             print(f"Error rendering display widget: {e}")
@@ -470,11 +497,17 @@ class ARINC661App(QMainWindow):
                     # append model row
                     if key in XMLA661Parser.widget_properties.keys():
                         target.model.appendRow([QStandardItem(XMLA661Parser.widget_properties[key]), QStandardItem(str(value))])
-
-            entry_list = source['model_prop']['arrayprop']
+                        entry_list = source['model_prop']['arrayprop']
             widget_string_combined = ' '.join(entry_list)
             target.model.appendRow([QStandardItem('A661_STRING_ARRAY'), QStandardItem(widget_string_combined)])
             target.addItems(entry_list)
+        elif self.widget_dict[target] == 'A661_PUSH_BUTTON':
+            for key, value in source['model_prop']['prop'].items():
+                if key in target.button_attr.keys():
+                    target.button_attr[key] = value
+                    # append model row
+                    if key in XMLA661Parser.widget_properties.keys():
+                        target.model.appendRow([QStandardItem(XMLA661Parser.widget_properties[key]), QStandardItem(str(value))])
         # print(f'key:{target}, value:{self.widget_dict[target]}')
 
     def add_tab(self, file_name):
@@ -482,7 +515,7 @@ class ARINC661App(QMainWindow):
         container_widget = QWidget(self)
         layout = QHBoxLayout()
 
-        self.display_widget = ARINC661BasicContainer(self)
+        self.display_widget = AppContainer(self)
         self.init_display_widget()
 
         h_splitter = QSplitter(Qt.Horizontal)

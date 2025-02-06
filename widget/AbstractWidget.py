@@ -17,6 +17,7 @@ class AbstractWidget:
         super().__init__(*args, **kwargs)
         self.__startPos = None
         self.is_user_input = True
+        self.movable = True
         self.model = QStandardItemModel()
         self.model.itemChanged.connect(self.on_item_changed)
         self.common_attr = {
@@ -98,12 +99,12 @@ class AbstractWidget:
         
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if self.movable and event.button() == Qt.LeftButton:
             self.__startPos = event.pos()
 
     def mouseMoveEvent(self, event):
         self.is_user_input = False
-        if event.buttons() == Qt.LeftButton and self.__startPos:
+        if self.movable and event.buttons() == Qt.LeftButton and self.__startPos:
             # calculate
             delta = event.pos() - self.__startPos
             new_pos = self.pos() + delta
@@ -127,6 +128,6 @@ class AbstractWidget:
         event.accept()
 
     def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if self.movable and event.button() == Qt.LeftButton:
             self.__startPos = None
         super().mousePressEvent(event)
