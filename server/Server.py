@@ -38,7 +38,7 @@ class ServerWindow(QWidget):
     def __init__(self, title, original_label, udp_port, target_port):
         super().__init__()
         self.setWindowTitle(title)
-        self.resize(500, 500)
+        self.setGeometry(230, 290, 500, 500)
         self.label = self.copy_label(original_label)
 
 

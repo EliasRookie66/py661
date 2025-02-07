@@ -34,10 +34,10 @@ class A661TabWidget(QTabWidget):
         action = menu.exec_(self.mapToGlobal(pos))
         if action == open_in_server_action:
             print('open_in_server_action is triggered')
-            self.client = ServerWindow('server',  self.findChild(A661Label), udp_port=5000, target_port=5001)
-            self.client.show()
+            self.server = ServerWindow('server',  self.findChild(A661Label), udp_port=5000, target_port=5001)
+            self.server.show()
             self.enable_client_state_signal.emit(True)
-            self.client.disable_client_state_signal.connect(lambda: self.enable_client_state_signal.emit(False))
+            self.server.disable_client_state_signal.connect(lambda: self.enable_client_state_signal.emit(False))
         elif action == create_UACDS_interface_action:
             print('create_UACDS_interface_action is triggered')
         elif action == open_UACDS_interface_action:

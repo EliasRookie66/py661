@@ -12,6 +12,7 @@ from widget.A661CommonParams import *
 from widget.Label import A661Label
 from widget.TabWidget import *
 from widget.PushButton import *
+from client.Client import *
 
 class ModelDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -204,8 +205,8 @@ class ARINC661App(QMainWindow):
         self.open_client_action.setEnabled(state)
 
     def on_triggered_open_client(self):
-        """ open client """
-        print("open client")
+        self.client = ClientWindow('client', self.parsed_xml, udp_port=5001, target_port=5000)
+        self.client.show()
 
     
     def on_tree_widget_item_clicked(self, item, column):
@@ -425,6 +426,7 @@ class ARINC661App(QMainWindow):
             self.hint_label = A661Label(self.display_widget)
             self.hint_label.setFrameStyle(QFrame.Box)
             self.hint_label.setGeometry(0, 0, 500, 500)
+            # self.hint_label.setStyleSheet("")
             
             self.display_widget.setGeometry(0, 0, 500, 500)
             self.widget_dict = dict()
@@ -515,6 +517,7 @@ class ARINC661App(QMainWindow):
         container_widget = QWidget(self)
         layout = QHBoxLayout()
 
+
         self.display_widget = AppContainer(self)
         self.init_display_widget()
 
@@ -534,7 +537,6 @@ class ARINC661App(QMainWindow):
 
         h_splitter.addWidget(v_splitter)
         h_splitter.addWidget(self.display_widget)
-        h_splitter.setStretchFactor(1, 1)
 
         self.tree_widget.expandAll()
 
@@ -550,7 +552,7 @@ class ARINC661App(QMainWindow):
             file_name = os.path.basename(file_path).split(".")[0]
             with open(f'{file_path}', 'r') as file:
                 self.parsed_xml = XMLA661Parser.parse(file)
-                # XMLA661Parser.print_parts_info(self.parsed_xml)
+                XMLA661Parser.print_parts_info(self.parsed_xml)
                 self.add_widget_signal.emit(file_name, self.parsed_xml)
 
 
