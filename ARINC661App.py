@@ -75,7 +75,7 @@ class ARINC661App(QMainWindow):
         self.setStyleSheet(str(style_sheet, encoding='utf-8'))
 
     def setup_ui(self):
-        self.setWindowTitle(self.tr("ARINC 661 Editor"))
+        self.setWindowTitle("ARINC 661 Editor")
         self.setGeometry(420, 60, 1080, 960)
 
         # menu
