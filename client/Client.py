@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QTreeWidgetItem
 from PyQt5.QtWidgets import QTableWidget
 from client.Messages import *
 from widget.A661CommonParams import *
+from PyQt5.QtWidgets import QTextEdit
 
 
 
@@ -139,6 +140,25 @@ class ClientWindow(QMainWindow):
         container_layout.addWidget(h_splitter)
         container_widget.setLayout(container_layout)
 
+        ## command encode message
+        self.command_encode_container = QWidget()
+        command_encode_layout = QHBoxLayout()
+        self.command_encode_container.setLayout(command_encode_layout)
+        command_container_splitter = QSplitter(Qt.Horizontal)
+        command_encode_layout.addWidget(command_container_splitter)
+
+        self.command_encode_tree_widget = QTreeWidget()
+        self.init_command_encode_tree_widget()
+        command_container_splitter.addWidget(self.command_encode_tree_widget)
+
+        self.command_encode_text_edit = QPlainTextEdit()
+        self.init_command_encode_text_edit()
+        command_container_splitter.addWidget(self.command_encode_text_edit)
+
+        self.command_encode_container.setHidden(True)
+
+        container_layout.addWidget(self.command_encode_container)
+
         self.tab_widget.addTab(container_widget, "Communication")
 
 
@@ -157,10 +177,14 @@ class ClientWindow(QMainWindow):
     #     sock.sendto(message.encode("utf-8"), ("127.0.0.1", self.target_port))
     #     self.text_edit.append(f"send message: {message}")
 
+
+
     def on_clicked_clear_button(self):
         root = self.message_tree_widget.topLevelItem(0)
         if root:
             root.takeChildren()
+        self.tree_node_selected = None
+        self.command_encode_container.setHidden(True)
 
     def on_clicked_remove_button(self):
         root = self.message_tree_widget.topLevelItem(0)
@@ -176,20 +200,22 @@ class ClientWindow(QMainWindow):
             layers = root.child(i)
             if layers == self.tree_node_selected:
                 root.takeChild(i)
-                return
+                break
 
             for j in range(layers.childCount()):
                 widget = layers.child(j)
                 if widget == self.tree_node_selected:
                     root.takeChild(i)
-                    return
+                    break
                 
                 for k in range(widget.childCount()):
                     command = widget.child(k)
                     if command == self.tree_node_selected:
                         root.takeChild(i)
-                        return
-
+                        break
+        if root.childCount() == 0:
+            self.tree_node_selected = None
+            self.command_encode_container.setHidden(True)
 
 
     def on_request_table_widget_item_clicked(self, item):
@@ -232,7 +258,7 @@ class ClientWindow(QMainWindow):
             print("not valid index")
     
     def on_message_table_widget_item_clicked(self, item):
-        print(f"Item '{item.text()}' clicked.")
+        # print(f"Item '{item.text()}' clicked.")
 
         index = item.data(Qt.UserRole)
         message_detail_box = item.data(Qt.UserRole + 1)
@@ -273,6 +299,7 @@ class ClientWindow(QMainWindow):
 
     def on_message_tree_widget_item_clicked(self, item, column):
         self.tree_node_selected = item
+        self.command_encode_container.setHidden(False)
 
     def on_clicked_add_button(self):
         try:
@@ -294,7 +321,33 @@ class ClientWindow(QMainWindow):
         except Exception as e:
             print(f'Error rendering message tree widget: {e}')
 
+    def init_command_encode_tree_widget(self):
+        self.command_encode_tree_widget.setHeaderHidden(True)
+        msg_frame = QTreeWidgetItem([r"Frame: 56 bytes on wire (448 bits), 56 bytes captured (448 bits) on interface \Device\NPF_Loopback, id 0"])
+        self.command_encode_tree_widget.addTopLevelItem(msg_frame)
 
+        msg_null = QTreeWidgetItem([r'Null/Loopback'])
+        self.command_encode_tree_widget.addTopLevelItem(msg_null)
+
+        msg_net = QTreeWidgetItem([r'Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1'])
+        self.command_encode_tree_widget.addTopLevelItem(msg_net)
+
+        msg_udp = QTreeWidgetItem([r'User Datagram Protocol, Src Port: 58181, Dst Port: 8080'])
+        self.command_encode_tree_widget.addTopLevelItem(msg_udp)
+
+        msg_data = QTreeWidgetItem([r'Data (24 bytes)'])
+        self.command_encode_tree_widget.addTopLevelItem(msg_data)
+
+    def init_command_encode_text_edit(self):
+        self.command_encode_text_edit.setReadOnly(True)
+        command_encode_data = """
+0000  02 00 00 00 45 00 00 34  c9 d1 00 00 80 11 00 00  ....E..4 ........
+0010  7f 00 00 01 7f 00 00 01  e3 45 1f 90 00 20 02 2b  ........ .E... .+
+0020  b0 01 00 00 00 00 00 18  ca 02 00 0c 00 01 00 00  ........ ........
+0030  b1 80 01 00 d0 00 00 00                           ........
+        """
+        self.command_encode_text_edit.setPlainText(command_encode_data)
+        self.command_encode_text_edit.setLineWrapMode(QPlainTextEdit.NoWrap)
 
     def init_blank_widget(self):
         blank_widget = QWidget(self)
