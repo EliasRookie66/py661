@@ -552,7 +552,7 @@ class ARINC661App(QMainWindow):
             file_name = os.path.basename(file_path).split(".")[0]
             with open(f'{file_path}', 'r') as file:
                 self.parsed_xml = XMLA661Parser.parse(file)
-                XMLA661Parser.print_parts_info(self.parsed_xml)
+                # XMLA661Parser.print_parts_info(self.parsed_xml)
                 self.add_widget_signal.emit(file_name, self.parsed_xml)
 
 
