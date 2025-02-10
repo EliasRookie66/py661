@@ -2,7 +2,7 @@ import os
 import sys
 from parse import XMLA661Parser as XMLA661Parser
 
-from PyQt5.QtCore import Qt, pyqtSignal, QFile
+from PyQt5.QtCore import Qt, pyqtSignal, QFile, QTranslator
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 
@@ -82,102 +82,102 @@ class ARINC661App(QMainWindow):
         menubar = self.menuBar()
 
         # File
-        file_menu = menubar.addMenu("File")
-        file_menu.addAction("New DF")
-        open_df_action = file_menu.addAction("Open DF")
+        file_menu = menubar.addMenu(self.tr("File"))
+        file_menu.addAction(self.tr("New DF"))
+        open_df_action = file_menu.addAction(self.tr("Open DF"))
         open_df_action.triggered.connect(self.on_triggered_open_df)
-        file_menu.addMenu("Open recent DFs")
+        file_menu.addMenu(self.tr("Open recent DFs"))
         file_menu.addSeparator()
-        file_menu.addAction("Save")
-        save_as_menu = file_menu.addMenu("Save as")
-        save_as_menu.addAction('As XML')
-        save_as_menu.addAction('As Binary')
-        file_menu.addAction("Convert")
+        file_menu.addAction(self.tr("Save"))
+        save_as_menu = file_menu.addMenu(self.tr("Save as"))
+        save_as_menu.addAction(self.tr('As XML'))
+        save_as_menu.addAction(self.tr('As Binary'))
+        file_menu.addAction(self.tr("Convert"))
         file_menu.addSeparator()
-        import_menu = file_menu.addMenu("Import")
+        import_menu = file_menu.addMenu(self.tr("Import"))
         import_menu.setEnabled(False)
-        export_menu = file_menu.addMenu("Export")
+        export_menu = file_menu.addMenu(self.tr("Export"))
         export_menu.setEnabled(False)
-        file_menu.addAction("Save Snapshot")
+        file_menu.addAction(self.tr("Save Snapshot"))
         file_menu.addSeparator()
-        file_menu.addAction("Exit")
+        file_menu.addAction(self.tr("Exit"))
 
         # Editor
-        editor_menu = menubar.addMenu('Editor')
-        editor_menu.addAction('Search')
-        editor_menu.addAction('Set Background')
-        editor_menu.addAction('Background Parameters')
+        editor_menu = menubar.addMenu(self.tr('Editor'))
+        editor_menu.addAction(self.tr('Search'))
+        editor_menu.addAction(self.tr('Set Background'))
+        editor_menu.addAction(self.tr('Background Parameters'))
         editor_menu.addSeparator()
-        editor_menu.addAction('Snap To Grid')
+        editor_menu.addAction(self.tr('Snap To Grid'))
 
         # Runtime
-        runtime_menu = menubar.addMenu('Runtime')
-        runtime_menu.addAction('Create Server')
+        runtime_menu = menubar.addMenu(self.tr('Runtime'))
+        self.create_server = runtime_menu.addAction(self.tr('Create Server'))
         runtime_menu.addSeparator()
-        self.open_client_action = runtime_menu.addAction('Open Client')
+        self.open_client_action = runtime_menu.addAction(self.tr('Open Client'))
         self.open_client_action.setEnabled(False)
         self.open_client_action.triggered.connect(self.on_triggered_open_client)
         runtime_menu.addSeparator()
-        runtime_menu.addAction('Set Look And Feel')
-        runtime_menu.addAction('Reload Look And Feel')
+        runtime_menu.addAction(self.tr('Set Look And Feel'))
+        runtime_menu.addAction(self.tr('Reload Look And Feel'))
 
         # Options
-        option_menu = menubar.addMenu('Options')
-        option_menu.addAction('Settings')
+        option_menu = menubar.addMenu(self.tr('Options'))
+        option_menu.addAction(self.tr('Settings'))
         option_menu.addSeparator()
-        option_menu.addAction('Load Configuration')
-        option_menu.addAction('Save Configuration')
-        option_menu.addAction('Reload Configuration')
+        option_menu.addAction(self.tr('Load Configuration'))
+        option_menu.addAction(self.tr('Save Configuration'))
+        option_menu.addAction(self.tr('Reload Configuration'))
 
         # Tools
-        tools_menu = menubar.addMenu('Tools')
-        tools_menu.addAction('Extract UI Defaults')
-        cockpit_plugin = tools_menu.addMenu('Cockpit Plugin')
-        cockpit_plugin.addAction('Convert Cockpit Configuration File')
-        debugging = tools_menu.addMenu('Debugging')
-        debugging.addAction('Decode Message')
-        debugging.addAction('Decode Scenario')
+        tools_menu = menubar.addMenu(self.tr('Tools'))
+        tools_menu.addAction(self.tr('Extract UI Defaults'))
+        cockpit_plugin = tools_menu.addMenu(self.tr('Cockpit Plugin'))
+        cockpit_plugin.addAction(self.tr('Convert Cockpit Configuration File'))
+        debugging = tools_menu.addMenu(self.tr('Debugging'))
+        debugging.addAction(self.tr('Decode Message'))
+        debugging.addAction(self.tr('Decode Scenario'))
         debugging.addSeparator()
-        debugging.addAction('Debug Server')
-        editor_scriping = tools_menu.addMenu('Editor Scripting')
-        editor_scriping.addAction('Apply Script On Current DF')
-        editor_scriping.addAction('Apply Script On All DFs')
-        look_n_feel = tools_menu.addMenu('Look Model')
-        look_n_feel.addAction('Open Look Capacities')
-        look_n_feel.addAction('Open Look Definition')
-        look_n_feel.addAction('Convert Look Model')
-        synth2_menu = look_n_feel.addMenu('Synth2')
-        synth2_menu.addAction('Convert From Synth2 to Look Model')
-        synth2_menu.addAction('Convert From Look Model to Synth2')
-        style_set_extraction_menu = look_n_feel.addMenu('Style Set Extraction')
-        style_set_extraction_menu.addAction('Extract Style Sets from Look and Feel file')
+        debugging.addAction(self.tr('Debug Server'))
+        editor_scriping = tools_menu.addMenu(self.tr('Editor Scripting'))
+        editor_scriping.addAction(self.tr('Apply Script On Current DF'))
+        editor_scriping.addAction(self.tr('Apply Script On All DFs'))
+        look_n_feel = tools_menu.addMenu(self.tr('Look Model'))
+        look_n_feel.addAction(self.tr('Open Look Capacities'))
+        look_n_feel.addAction(self.tr('Open Look Definition'))
+        look_n_feel.addAction(self.tr('Convert Look Model'))
+        synth2_menu = look_n_feel.addMenu(self.tr('Synth2'))
+        synth2_menu.addAction(self.tr('Convert From Synth2 to Look Model'))
+        synth2_menu.addAction(self.tr('Convert From Look Model to Synth2'))
+        style_set_extraction_menu = look_n_feel.addMenu(self.tr('Style Set Extraction'))
+        style_set_extraction_menu.addAction(self.tr('Extract Style Sets from Look and Feel file'))
 
-        uacds_plugin = tools_menu.addMenu('UACDS Plugin')
-        uacds_plugin.addAction('Create UACDS Interface')
-        uacds_plugin.addAction('Save UACDS Interface File')
-        wd_plugin = tools_menu.addMenu('WidgetDefinition Plugin')
-        wd_plugin.addAction('View Widget Definition')
-        wd_plugin.addAction('Extract Supplement')
-        wd_plugin.addAction('Produce Full Metadefinition')
-        wd_plugin.addAction('Generate Documentation')
+        uacds_plugin = tools_menu.addMenu(self.tr('UACDS Plugin'))
+        uacds_plugin.addAction(self.tr('Create UACDS Interface'))
+        uacds_plugin.addAction(self.tr('Save UACDS Interface File'))
+        wd_plugin = tools_menu.addMenu(self.tr('WidgetDefinition Plugin'))
+        wd_plugin.addAction(self.tr('View Widget Definition'))
+        wd_plugin.addAction(self.tr('Extract Supplement'))
+        wd_plugin.addAction(self.tr('Produce Full Metadefinition'))
+        wd_plugin.addAction(self.tr('Generate Documentation'))
         wd_plugin.addSeparator()
-        wd_plugin.addAction('Apply Meta-definition Script')
+        wd_plugin.addAction(self.tr('Apply Meta-definition Script'))
 
-        help_menu = menubar.addMenu('Help')
-        help_menu.addAction('Wiki')
-        help_menu.addAction('About')
-        help_menu.addAction('About Plugins')
+        help_menu = menubar.addMenu(self.tr('Help'))
+        help_menu.addAction(self.tr('Wiki'))
+        help_menu.addAction(self.tr('About'))
+        help_menu.addAction(self.tr('About Plugins'))
 
         # tool bar
         file_bar = self.addToolBar('File Bar')
         file_bar.setAllowedAreas(Qt.TopToolBarArea)
         file_bar.setMovable(True)
-        new_file_action = file_bar.addAction(QIcon(r'C:\icons\new_file'), 'New Definition File')
+        new_file_action = file_bar.addAction(QIcon(r'C:\icons\new_file'), self.tr('New Definition File'))
 
-        open_folder_action = file_bar.addAction(QIcon(r'C:\icons\open_folder'), 'Open Folder')
+        open_folder_action = file_bar.addAction(QIcon(r'C:\icons\open_folder'), self.tr('Open Folder'))
         open_folder_action.triggered.connect(self.on_triggered_open_df)
 
-        save_file_action = file_bar.addAction(QIcon(r'C:\icons\save_file'), 'Save')
+        save_file_action = file_bar.addAction(QIcon(r'C:\icons\save_file'), self.tr('Save'))
 
         # main widget
         central_widget = QWidget(self)
@@ -203,9 +203,13 @@ class ARINC661App(QMainWindow):
 
     def on_update_client_state(self, state):
         self.open_client_action.setEnabled(state)
+        if state:
+            self.create_server.setEnabled(False)
+        else:
+            self.create_server.setEnabled(True)
 
     def on_triggered_open_client(self):
-        self.client = ClientWindow('client', self.parsed_xml, udp_port=5001, target_port=5000)
+        self.client = ClientWindow(self.tr('client'), self.parsed_xml, udp_port=5001, target_port=5000)
         self.client.show()
 
     
@@ -575,6 +579,12 @@ class ARINC661App(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+
+    translator = QTranslator()
+    translator.load(r"C:\py661\resource\i18n\py661.zh_CN.qm")
+    
+    app.installTranslator(translator)
+
     window = ARINC661App()
     window.show()
     sys.exit(app.exec_())
