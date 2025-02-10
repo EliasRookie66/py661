@@ -470,5 +470,10 @@
         <source>Add</source>
         <translation>添加</translation>
     </message>
+    <message>
+        <location filename="../../client/Client.py" line="162"/>
+        <source>Communication</source>
+        <translation>通信</translation>
+    </message>
 </context>
 </TS>

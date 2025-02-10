@@ -159,7 +159,7 @@ class ClientWindow(QMainWindow):
 
         container_layout.addWidget(self.command_encode_container)
 
-        self.tab_widget.addTab(container_widget, "Communication")
+        self.tab_widget.addTab(container_widget, self.tr("Communication"))
 
 
         file = QFile(r'C:\Users\shconnet\Downloads\Integrid\Integrid.qss')
