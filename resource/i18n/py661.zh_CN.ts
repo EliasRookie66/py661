@@ -371,109 +371,117 @@
 <context>
     <name>ClientWindow</name>
     <message>
-        <location filename="../../client/Client.py" line="63"/>
+        <location filename="../../client/Client.py" line="61"/>
         <source>Maps</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="64"/>
+        <location filename="../../client/Client.py" line="62"/>
         <source>Open XML</source>
         <translation>打开 XML</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="65"/>
+        <location filename="../../client/Client.py" line="63"/>
         <source>Save as XML</source>
         <translation>保存为 XML</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="67"/>
+        <location filename="../../client/Client.py" line="65"/>
         <source>Scripting</source>
         <translation>脚本</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="68"/>
+        <location filename="../../client/Client.py" line="66"/>
         <source>Manage Scripts</source>
         <translation>管理脚本</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="69"/>
+        <location filename="../../client/Client.py" line="67"/>
         <source>Open Script</source>
         <translation>打开脚本</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="70"/>
+        <location filename="../../client/Client.py" line="68"/>
         <source>Open User View</source>
         <translation>打开用户视图</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="72"/>
+        <location filename="../../client/Client.py" line="70"/>
         <source>Activate Script</source>
         <translation>激活脚本</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="74"/>
+        <location filename="../../client/Client.py" line="72"/>
         <source>Load Scripts Configuration</source>
         <translation>加载脚本配置</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="75"/>
+        <location filename="../../client/Client.py" line="73"/>
         <source>Save Scripts Configuration</source>
         <translation>保存脚本配置</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="77"/>
+        <location filename="../../client/Client.py" line="75"/>
         <source>Scenarios</source>
         <translation>场景</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="78"/>
+        <location filename="../../client/Client.py" line="76"/>
         <source>Create New Scenario</source>
         <translation>创建新的场景</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="79"/>
+        <location filename="../../client/Client.py" line="77"/>
         <source>Open Existing Scenario</source>
         <translation>打开已存在的场景</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="80"/>
+        <location filename="../../client/Client.py" line="78"/>
         <source>Options</source>
         <translation>选项</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="86"/>
+        <location filename="../../client/Client.py" line="84"/>
         <source>Load</source>
         <translation>加载</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="87"/>
+        <location filename="../../client/Client.py" line="86"/>
+        <location filename="../../client/Client.py" line="187"/>
+        <location filename="../../client/Client.py" line="192"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="111"/>
+        <location filename="../../client/Client.py" line="112"/>
         <source>Clear</source>
         <translation>清空</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="113"/>
+        <location filename="../../client/Client.py" line="114"/>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="117"/>
+        <location filename="../../client/Client.py" line="118"/>
         <source>Send</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="133"/>
+        <location filename="../../client/Client.py" line="134"/>
         <source>Add</source>
         <translation>添加</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="162"/>
+        <location filename="../../client/Client.py" line="164"/>
         <source>Communication</source>
         <translation>通信</translation>
+    </message>
+    <message>
+        <location filename="../../client/Client.py" line="187"/>
+        <location filename="../../client/Client.py" line="192"/>
+        <source>Disconnect</source>
+        <translation>断开</translation>
     </message>
 </context>
 </TS>

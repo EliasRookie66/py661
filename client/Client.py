@@ -1,12 +1,11 @@
 import socket
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QThread, pyqtSignal, Qt, QFile
 from PyQt5.QtWidgets import QTreeWidgetItem
 from PyQt5.QtWidgets import QTableWidget
 from client.Messages import *
 from widget.A661CommonParams import *
-from PyQt5.QtWidgets import QTextEdit
-
 
 
 class ClientListenerThread(QThread):
@@ -39,10 +38,11 @@ class ClientListenerThread(QThread):
 
 class ClientWindow(QMainWindow):
     disable_client_state_signal = pyqtSignal(bool)
+    connection_signal = pyqtSignal(str)
     def __init__(self, title, data, udp_port, target_port):
         super().__init__()
         self.setWindowTitle(title)
-        self.setGeometry(1040, 140, 800, 800)
+        self.setGeometry(970, 140, 900, 800)
 
         self.udp_port = udp_port
         self.target_port = target_port
@@ -83,8 +83,11 @@ class ClientWindow(QMainWindow):
         communication_bar.setAllowedAreas(Qt.TopToolBarArea)
         communication_bar.setMovable(False)
 
-        load_data_action = communication_bar.addAction(self.tr("Load"))
-        connect_action = communication_bar.addAction(self.tr("Connect"))
+        self.load_data_action = communication_bar.addAction(self.tr("Load"))
+        self.load_data_action.triggered.connect(self.on_triggered_load_data_action)
+        self.connect_action = communication_bar.addAction(self.tr("Connect"))
+        self.connect_action.triggered.connect(self.on_triggered_connect_action)
+        self.connect_action.setEnabled(False)
 
         self.tab_widget = QTabWidget(self)
         
@@ -114,8 +117,9 @@ class ClientWindow(QMainWindow):
         remove_button.clicked.connect(self.on_clicked_remove_button)
         v_left_layout.addWidget(remove_button)
         v_left_layout.addWidget(clear_button)
-        send_button = QPushButton(self.tr("Send"))
-        v_left_layout.addWidget(send_button)
+        self.send_button = QPushButton(self.tr("Send"))
+        self.send_button.clicked.connect(self.on_clicked_send_button)
+        v_left_layout.addWidget(self.send_button)
         left_container = QWidget(self)
         left_container.setLayout(v_left_layout)
         v_splitter.addWidget(left_container)
@@ -130,9 +134,10 @@ class ClientWindow(QMainWindow):
         v_right_layout.setContentsMargins(0, 0, 0, 0)
         v_right_layout.setSpacing(0)
 
-        add_button = QPushButton(self.tr("Add"))
-        v_right_layout.addWidget(add_button)
-        add_button.clicked.connect(self.on_clicked_add_button)
+        self.add_button = QPushButton(self.tr("Add"))
+        self.add_button.setEnabled(False)
+        v_right_layout.addWidget(self.add_button)
+        self.add_button.clicked.connect(self.on_clicked_add_button)
         self.right_container = QWidget(self)
         self.right_container.setLayout(v_right_layout)
         h_splitter.addWidget(self.right_container)
@@ -166,17 +171,40 @@ class ClientWindow(QMainWindow):
         file.open(QFile.ReadOnly)
         style_sheet = file.readAll()
         self.setStyleSheet(str(style_sheet, encoding='utf-8'))
+        self.setWindowIcon(QIcon(r'C:\work\TestBenchV1.0.6\TestBenchV1.0.6\eclipse\configuration\org.eclipse.osgi\169\0\.cp\icons\connet-logo-16.png'))
+
 
         # udp thread
         self.listener_thread = ClientListenerThread(self.udp_port)
         self.listener_thread.start()
 
-    # def send_message(self):
-    #     message = f"from port {self.udp_port}:"
-    #     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    #     sock.sendto(message.encode("utf-8"), ("127.0.0.1", self.target_port))
-    #     self.text_edit.append(f"send message: {message}")
+    def send_message(self):
+        message = f"from port {self.udp_port}:"
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(message.encode("utf-8"), ("127.0.0.1", self.target_port))
+    
+    def on_clicked_send_button(self):
+        self.on_clicked_clear_button
 
+    def on_triggered_load_data_action(self):
+        self.connect_action.setEnabled(True)
+        self.load_data_action.setEnabled(False)
+
+    def on_triggered_connect_action(self):
+        if self.connect_action.text() == self.tr('Connect'):
+            self.connect_action.setText(self.tr('Disconnect'))
+            self.add_button.setEnabled(True)
+            self.connection_signal.emit('Client:Connection to Protocol UDP')
+            self.connection_signal.emit('Server:Connection to Protocol UDP')
+
+            
+        elif self.connect_action.text() == self.tr('Disconnect'):
+            self.connect_action.setText(self.tr('Connect'))
+            self.add_button.setEnabled(False)
+            self.load_data_action.setEnabled(True)
+            self.disable_client_state_signal.emit(True)
+            # self.listener_thread.stop()
+            # self.listener_thread.wait()
 
 
     def on_clicked_clear_button(self):
@@ -200,19 +228,30 @@ class ClientWindow(QMainWindow):
             layers = root.child(i)
             if layers == self.tree_node_selected:
                 root.takeChild(i)
-                break
+                return
 
             for j in range(layers.childCount()):
                 widget = layers.child(j)
                 if widget == self.tree_node_selected:
-                    root.takeChild(i)
-                    break
-                
+                    if layers.childCount() == 1:
+                        root.takeChild(i)
+                        return
+                    elif layers.childCount() > 1:
+                        layers.takeChild(j)
+                        break
+
                 for k in range(widget.childCount()):
                     command = widget.child(k)
                     if command == self.tree_node_selected:
-                        root.takeChild(i)
-                        break
+                        if widget.childCount() == 1:
+                            layers.takeChild(j)
+                            if layers.childCount() == 0:
+                                root.takeChild(i)
+                                return
+                            break
+                        elif widget.childCount() > 1:
+                            widget.takeChild(k)
+                            break
         if root.childCount() == 0:
             self.tree_node_selected = None
             self.command_encode_container.setHidden(True)
@@ -223,6 +262,9 @@ class ClientWindow(QMainWindow):
             self.req_focus_on_widget_details.setVisible(True)
         else:
             self.req_focus_on_widget_details.setVisible(False)
+        
+        self.message_buffer['command'] = item.text()
+        # print(self.message_buffer)
 
     def on_layer_tree_widget_item_clicked(self, item):
         index = item.data(0, Qt.UserRole)
@@ -237,6 +279,8 @@ class ClientWindow(QMainWindow):
             self.message_buffer['parents'].append(item.text(0))
             item = item.parent()
         self.message_commands_widget.setCurrentIndex(index)
+
+        # print(self.message_buffer)
 
     def on_combo_box_current_index_changed(self, index):
         combo_box = self.sender()
@@ -300,22 +344,74 @@ class ClientWindow(QMainWindow):
     def on_message_tree_widget_item_clicked(self, item, column):
         self.tree_node_selected = item
         self.command_encode_container.setHidden(False)
+    
+    def exist_layer(self, layer_name):
+        for i in range(self.title_item.childCount()):
+            if self.title_item.child(i).text(0) == layer_name:
+                return self.title_item.child(i)
+
+    def exist_widget(self, layer, widget_name):
+        for i in range(layer.childCount()):
+            if layer.child(i).text(0) == widget_name:
+                return layer.child(i)
+
 
     def on_clicked_add_button(self):
         try:
-            all_parents_num = len(self.message_buffer['parents'])
+            current_item = self.title_item
+            widget_name = self.message_buffer['self']
+            command_name = self.message_buffer['command']
+            check_exist = False
 
-            for index, parent in enumerate(reversed(self.message_buffer['parents'])):
-                next_node = QTreeWidgetItem([parent])
-                self.title_item.addChild(next_node)
-                next_node.setData(0, Qt.UserRole, index)
-                if index == all_parents_num - 1:
-                    sender = QTreeWidgetItem([self.message_buffer['self']])
-                    sender.setData(0, Qt.UserRole, all_parents_num)
-                    next_node.addChild(sender)
-                    command = QTreeWidgetItem([self.message_buffer['command']])
-                    command.setData(0, Qt.UserRole, all_parents_num + 1)
-                    sender.addChild(command)
+            # insert layer command
+            if widget_name.__contains__('Layer'):
+                # if exist layer
+                if self.title_item.childCount() > 0:
+                    for i in range(self.title_item.childCount()):
+                        if self.title_item.child(i).text(0) == widget_name:
+                            current_item = self.title_item.child(i)
+                else:
+                    next_layer = QTreeWidgetItem([widget_name])
+                    self.title_item.addChild(next_layer)
+                    current_item = next_layer
+
+            # insert widget command
+            else:
+                # if exist layer
+                if self.title_item.childCount() > 0:
+                    for i in range(self.title_item.childCount()):
+                        if self.title_item.child(i).text(0) == self.message_buffer['parents'][0]:
+                            current_item = self.title_item.child(i)
+                            break
+                else:
+                    next_layer = QTreeWidgetItem([self.message_buffer['parents'][0]])
+                    self.title_item.addChild(next_layer)
+                    current_item = next_layer
+
+                # if exist widget
+                if current_item.childCount() > 0:
+                    for i in range(current_item.childCount()):
+                        if current_item.child(i).text(0) == widget_name:
+                            current_item = current_item.child(i)
+                            check_exist = True
+                            break
+                    if not check_exist:
+                        widget_item = QTreeWidgetItem([widget_name])
+                        current_item.addChild(widget_item)
+                        current_item = widget_item
+                else:
+                    widget_item = QTreeWidgetItem([widget_name])
+                    current_item.addChild(widget_item)
+                    current_item = widget_item
+            
+            # if exist same command
+            if current_item.childCount() > 0:
+                for i in range(current_item.childCount()):
+                    if current_item.child(i).text(0) == command_name:
+                        return
+            command = QTreeWidgetItem([command_name])
+            command.setData(0, Qt.UserRole, 0)
+            current_item.addChild(command)
 
             self.message_tree_widget.expandAll()
         except Exception as e:

@@ -1,5 +1,6 @@
 import socket
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QThread, pyqtSignal
 from widget.Label import A661Label
 from widget.ComboBox import A661ComboBox
@@ -40,6 +41,8 @@ class ServerWindow(QWidget):
         self.setWindowTitle(title)
         self.setGeometry(230, 290, 500, 500)
         self.label = self.copy_label(original_label)
+        self.setWindowIcon(QIcon(r'C:\work\TestBenchV1.0.6\TestBenchV1.0.6\eclipse\configuration\org.eclipse.osgi\169\0\.cp\icons\connet-logo-16.png'))
+
 
 
         self.udp_port = udp_port
@@ -53,12 +56,6 @@ class ServerWindow(QWidget):
         # udp thread
         self.listener_thread = ServerListenerThread(self.udp_port)
         self.listener_thread.start()
-
-    # def send_message(self):
-    #     message = f"from port {self.udp_port}:"
-    #     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    #     sock.sendto(message.encode("utf-8"), ("127.0.0.1", self.target_port))
-    #     self.text_edit.append(f"send message: {message}")
 
     def closeEvent(self, event):
         self.listener_thread.stop()

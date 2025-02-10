@@ -73,6 +73,7 @@ class ARINC661App(QMainWindow):
         file.open(QFile.ReadOnly)
         style_sheet = file.readAll()
         self.setStyleSheet(str(style_sheet, encoding='utf-8'))
+        self.setWindowIcon(QIcon(r'C:\work\TestBenchV1.0.6\TestBenchV1.0.6\eclipse\configuration\org.eclipse.osgi\169\0\.cp\icons\connet-logo-16.png'))
 
     def setup_ui(self):
         self.setWindowTitle("ARINC 661 Editor")
@@ -186,10 +187,10 @@ class ARINC661App(QMainWindow):
         self.tab_widget = A661TabWidget(self)
         self.tab_widget.enable_client_state_signal.connect(self.on_update_client_state)
         bottom_widget = QWidget(self)
-        bottom_text_edit = QTextEdit()
-        bottom_text_edit.setReadOnly(True)
+        self.bottom_text_edit = QTextEdit()
+        self.bottom_text_edit.setReadOnly(True)
         bottom_layout = QVBoxLayout()
-        bottom_layout.addWidget(bottom_text_edit)
+        bottom_layout.addWidget(self.bottom_text_edit)
         bottom_widget.setLayout(bottom_layout)
 
         v_splitter.addWidget(self.tab_widget)
@@ -207,9 +208,18 @@ class ARINC661App(QMainWindow):
             self.create_server.setEnabled(False)
         else:
             self.create_server.setEnabled(True)
+    
+    def on_connection_signal(self, str):
+        buffer = self.bottom_text_edit.toPlainText()
+        if buffer:
+            str = buffer + '\n' + str
+        else:
+            str = str
+        self.bottom_text_edit.setText(f'{str}')
 
     def on_triggered_open_client(self):
         self.client = ClientWindow(self.tr('client'), self.parsed_xml, udp_port=5001, target_port=5000)
+        self.client.connection_signal.connect(self.on_connection_signal)
         self.client.show()
 
     
