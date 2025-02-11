@@ -171,7 +171,7 @@ class ARINC661App(QMainWindow):
 
         # tool bar
         file_bar = self.addToolBar('File Bar')
-        file_bar.setAllowedAreas(Qt.TopToolBarArea)
+        file_bar.setAllowedAreas(Qt.ToolBarArea.TopToolBarArea)
         file_bar.setMovable(True)
         new_file_action = file_bar.addAction(QIcon(r'C:\icons\new_file'), self.tr('New Definition File'))
 

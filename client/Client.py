@@ -80,14 +80,16 @@ class ClientWindow(QMainWindow):
         options_action = scenarios_menu.addAction(self.tr("Options"))
 
         communication_bar = self.addToolBar("Communication Bar")
-        communication_bar.setAllowedAreas(Qt.TopToolBarArea)
+        communication_bar.setAllowedAreas(Qt.ToolBarArea.TopToolBarArea)
         communication_bar.setMovable(False)
 
-        self.load_data_action = communication_bar.addAction(self.tr("Load"))
-        self.load_data_action.triggered.connect(self.on_triggered_load_data_action)
-        self.connect_action = communication_bar.addAction(self.tr("Connect"))
-        self.connect_action.triggered.connect(self.on_triggered_connect_action)
-        self.connect_action.setEnabled(False)
+        self.load_data_button = QPushButton(self.tr('Load'))
+        self.load_data_button.clicked.connect(self.on_clicked_load_data_button)
+        communication_bar.addWidget(self.load_data_button)
+        self.connect_button = QPushButton(self.tr('Connect'))
+        self.connect_button.clicked.connect(self.on_clicked_connect_button)
+        communication_bar.addWidget(self.connect_button)
+        self.connect_button.setEnabled(False)
 
         self.tab_widget = QTabWidget(self)
         
@@ -184,15 +186,15 @@ class ClientWindow(QMainWindow):
         sock.sendto(message.encode("utf-8"), ("127.0.0.1", self.target_port))
     
     def on_clicked_send_button(self):
-        self.on_clicked_clear_button
+        pass
 
-    def on_triggered_load_data_action(self):
-        self.connect_action.setEnabled(True)
-        self.load_data_action.setEnabled(False)
+    def on_clicked_load_data_button(self):
+        self.connect_button.setEnabled(True)
+        self.load_data_button.setEnabled(False)
 
-    def on_triggered_connect_action(self):
-        if self.connect_action.text() == self.tr('Connect'):
-            self.connect_action.setText(self.tr('Disconnect'))
+    def on_clicked_connect_button(self):
+        if self.connect_button.text() == self.tr('Connect'):
+            self.connect_button.setText(self.tr('Disconnect'))
             self.add_button.setEnabled(True)
             self.connection_signal.emit('Client:Connection to Protocol UDP')
             self.connection_signal.emit('Server:Connection to Protocol UDP')
@@ -228,14 +230,14 @@ class ClientWindow(QMainWindow):
             layers = root.child(i)
             if layers == self.tree_node_selected:
                 root.takeChild(i)
-                return
+                break
 
             for j in range(layers.childCount()):
                 widget = layers.child(j)
                 if widget == self.tree_node_selected:
                     if layers.childCount() == 1:
                         root.takeChild(i)
-                        return
+                        break
                     elif layers.childCount() > 1:
                         layers.takeChild(j)
                         break
@@ -247,7 +249,7 @@ class ClientWindow(QMainWindow):
                             layers.takeChild(j)
                             if layers.childCount() == 0:
                                 root.takeChild(i)
-                                return
+                                break
                             break
                         elif widget.childCount() > 1:
                             widget.takeChild(k)
