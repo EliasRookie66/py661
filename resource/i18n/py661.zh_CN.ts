@@ -446,40 +446,40 @@
         <translation>加载</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="88"/>
-        <location filename="../../client/Client.py" line="195"/>
-        <location filename="../../client/Client.py" line="202"/>
+        <location filename="../../client/Client.py" line="89"/>
+        <location filename="../../client/Client.py" line="197"/>
+        <location filename="../../client/Client.py" line="204"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="114"/>
+        <location filename="../../client/Client.py" line="116"/>
         <source>Clear</source>
         <translation>清空</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="116"/>
+        <location filename="../../client/Client.py" line="118"/>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="120"/>
+        <location filename="../../client/Client.py" line="122"/>
         <source>Send</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="137"/>
+        <location filename="../../client/Client.py" line="139"/>
         <source>Add</source>
         <translation>添加</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="167"/>
+        <location filename="../../client/Client.py" line="169"/>
         <source>Communication</source>
         <translation>通信</translation>
     </message>
     <message>
-        <location filename="../../client/Client.py" line="195"/>
-        <location filename="../../client/Client.py" line="202"/>
+        <location filename="../../client/Client.py" line="197"/>
+        <location filename="../../client/Client.py" line="204"/>
         <source>Disconnect</source>
         <translation>断开</translation>
     </message>

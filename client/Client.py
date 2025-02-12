@@ -200,10 +200,11 @@ class ClientWindow(QMainWindow):
             self.connection_signal.emit('Server:Connection to Protocol UDP')
 
             
-        elif self.connect_action.text() == self.tr('Disconnect'):
-            self.connect_action.setText(self.tr('Connect'))
+        elif self.connect_button.text() == self.tr('Disconnect'):
+            self.connect_button.setText(self.tr('Connect'))
             self.add_button.setEnabled(False)
-            self.load_data_action.setEnabled(True)
+            self.connect_button.setEnabled(False)
+            self.load_data_button.setEnabled(True)
             self.disable_client_state_signal.emit(True)
             # self.listener_thread.stop()
             # self.listener_thread.wait()
@@ -223,7 +224,7 @@ class ClientWindow(QMainWindow):
             return
 
         if not self.tree_node_selected:
-            print("do not select")
+            print("do not select yet")
             return
         
         for i in range(root.childCount()):
