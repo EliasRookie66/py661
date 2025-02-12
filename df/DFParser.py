@@ -75,8 +75,3 @@ class DFParser:
         widget = Widget(widget_name, widget_type, widget_model)
         widget.children = children_widgets
         return widget
-    
-if __name__ == '__main__':
-    xml_filename = r'C:\workplace\j661fx\j661fx-src-1.8.1b2\sampleFiles\ARINC_Combox.xml'
-    df_object = DFParser.parse(xml_filename)
-    print(df_object)
