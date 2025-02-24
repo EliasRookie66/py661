@@ -1,0 +1,65 @@
+
+QWidget
+{
+	background-color: black;
+}
+
+
+
+QLabel
+{
+    background-color: transparent;
+}
+
+QComboBox
+{
+    background-color: rgb(60, 60, 60);
+    color: white;
+    width: 155px;
+    height: 42px;
+    border: 1px solid white;
+    padding-left: 6px;
+}
+
+QComboBox::disabled
+{
+    color: rgb(111, 114, 126);
+}
+
+QComboBox::drop-down
+{
+    border: 1px solid rgb(117, 118, 124);
+    background-color: rgb(60, 60, 60);
+}
+
+QComboBox:hover
+{
+    background-color: rgb(60, 60, 60);
+}
+
+QComboBox::content
+{
+    background-color: rgb(60, 60, 60);
+}
+
+QComboBox QAbstractItemView
+{
+    background-color: rgb(60, 60, 60);
+    padding-top: 6px;
+    color: white;
+    border: 1px solid rgb(117, 118, 124);
+    selection-background-color: transparent;
+    outline: 2px solid rgb(0, 252, 252);
+}
+
+QComboBox QAbstractItemView::item::disabled
+{
+    color: lightgray;
+}
+
+QComboBox::down-arrow
+{
+    border-image: url(down-arrow.png);
+    height: 15px;
+    width: 15px;
+}

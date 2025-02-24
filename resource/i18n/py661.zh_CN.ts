@@ -110,7 +110,7 @@
     <message>
         <location filename="../../ARINC661App.py" line="104"/>
         <source>Exit</source>
-        <translation>推出</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../../ARINC661App.py" line="107"/>
